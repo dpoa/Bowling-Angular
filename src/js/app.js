@@ -2,8 +2,16 @@
 (() => {
     class Player {
         constructor(name) {
-            this.name = name;
-            this.rolls = [];
+            this._name = name;
+            this._rolls = [];
+        }
+
+        get name() {
+            return this._name;
+        }
+
+        set name(value) {
+            this._name = value;
         }
     }
 
@@ -18,25 +26,30 @@
         }
     }
 
-    class GameService {
+    class BowlingService {
 
         constructor() {
-            this.name = '';
+            this._rnd = null;
         }
 
-        add(name) {
-
+        play() {
+            return 10;
         }
     }
 
     class MainController {
 
-        constructor($scope, GameService) {
+        constructor($scope, BowlingService) {
+            var game = new Game();
+            game.join('John');
+            game.join('Mary');
+            
+            this.bowlingService = BowlingService;
             this.$scope = $scope;
-            this.gameService = GameService;
+            this.$scope.game = game;
         }
 
-        app () {
+        add () {
             alert('Add');
         }
 
@@ -51,6 +64,6 @@
 
     angular
         .module('app', [])
-        .service('GameService', GameService)
+        .service('BowlingService', BowlingService)
         .controller('MainController', MainController);
  })();

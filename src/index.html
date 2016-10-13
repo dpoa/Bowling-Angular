@@ -35,18 +35,18 @@
           <h2>Create New Game</h2>
           <form>
             <div class="form-group">
-                <label for="playerName">Player Name</label>
+                <!--<label for="playerName">Player Name</label>-->
                 <input type="text" class="form-control" id="playerName" aria-describedby="emailHelp" placeholder="Player Name" maxlength="20" />
                 <small class="form-text text-muted">Between 3 and 20 characters.</small>
             </div>
             <button class="btn btn-secondary">Add Player</button>
             <button class="btn btn-danger" ng-click="CT.reset()">Reset</button>
-            <button class="btn btn-primary" ng-click="CT.start()">Start New Game</button>
+            <button class="btn btn-primary" ng-click="CT.start()">Start</button>
           </form>
         </div>
         <div class="col-md-8">
           <h2>Players</h2>
-          <table class="table table-hover">
+          <table class="table table-hover centered">
             <thead class="thead-inverse">
               <tr>
                 <th>#</th>
@@ -78,7 +78,7 @@
       <div class="row">
         <div class="col-md-12">
           <h2>Game</h2>
-          <table class="table table-bordered score">
+          <table class="table table-bordered centered">
             <thead class="thead-inverse">
               <tr>
                 <th rowspan="2">Player</th>
@@ -92,11 +92,12 @@
                 <th colspan="2">8</th>
                 <th colspan="2">9</th>
                 <th colspan="3">10</th>
+                <th>Score</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <th scope="row">John</th>
+                <th rowspan="2" scope="row">John</th>
                 <td>.</td>
                 <td>.</td>
                 <td>.</td>
@@ -118,33 +119,10 @@
                 <td>.</td>
                 <td>.</td>
                 <td>.</td>
+                <th rowspan="2">0</th>
               </tr>
-              <tr>
-              <th scope="row">Mary</th>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-                <td>.</td>
-              </tr>
+              
               <tr class="table-active">
-                <th rowspan="2">Score</th>
                 <th colspan="2">-</th>
                 <th colspan="2">-</th>
                 <th colspan="2">-</th>

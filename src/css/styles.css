@@ -3,10 +3,11 @@
     background-color: #373a3c;
 }
 
-.score th {
+.centered th,
+.centered td {
     text-align: center;
+    vertical-align: middle !important;
 }
 
-.score td {
-    text-align: center;
-}
+
+
