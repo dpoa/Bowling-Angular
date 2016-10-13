@@ -1,0 +1,12 @@
+.thead-inverse th {
+    color: #fff;
+    background-color: #373a3c;
+}
+
+.score th {
+    text-align: center;
+}
+
+.score td {
+    text-align: center;
+}
