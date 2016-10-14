@@ -9,5 +9,16 @@
     vertical-align: middle !important;
 }
 
-
-
+span.ball {
+    background: red;
+    border-radius: 0.8em;
+    -moz-border-radius: 0.8em;
+    -webkit-border-radius: 0.8em;
+    color: #ffffff;
+    display: inline-block;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.6em;
+    width: 1.6em;
+    font-size: 72px;
+}

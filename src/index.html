@@ -25,61 +25,92 @@
     <div class="jumbotron">
       <div class="container">
         <h1 class="display-3">Bowling Game</h1>
-        <p>This is a classic Bowling game. To start a game, please add one or more players and click the "Start New Game" button.</p>
+        <p>This is a classic Bowling game implemented in Angular 1.x and ECMAScript6.</p>
       </div>
     </div>
 
     <div class="container">
       <div class="row">
-        <div class="col-md-4">
-          <h2>Create New Game</h2>
-          <form>
-            <div class="form-group">
-                <!--<label for="playerName">Player Name</label>-->
-                <input type="text" class="form-control" id="playerName" aria-describedby="emailHelp" placeholder="Player Name" maxlength="20" />
-                <small class="form-text text-muted">Between 3 and 20 characters.</small>
-            </div>
-            <button class="btn btn-secondary">Add Player</button>
-            <button class="btn btn-danger" ng-click="CT.reset()">Reset</button>
-            <button class="btn btn-primary" ng-click="CT.start()">Start</button>
-          </form>
+
+        <div class="col-md-6">
+          <h2 class="page-header">Game</h2>
+          
+          <ul class="list-group">
+            <li class="list-group-item">
+              <div class="row">
+                <div class="col-md-2"><label>Status</label></div>
+                <div class="col-md-4">Not Started</div>
+              </div>
+            </li>
+            <li class="list-group-item">
+              <div class="row">
+                <div class="col-md-2"><label>Player</label></div>
+                <div class="col-md-4">John</div>
+              </div>
+            </li>
+            
+            <li class="list-group-item">
+              <div class="row">
+                <div class="col-md-2"><label>Last Ball</label></div>
+                <div class="col-md-4">3</div>
+              </div>
+            </li>
+          </ul>
         </div>
-        <div class="col-md-8">
-          <h2>Players</h2>
-          <table class="table table-hover table-bordered centered">
-            <thead class="thead-inverse">
-              <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Score</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr ng-repeat="player in game.players">
-                <th scope="row">{{ player.position }}</th>
-                <td>{{ player.name }}</td>
-                <td>-</td>
-                <td>
-                  <button type="button" class="btn btn-danger btn-sm">
-                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Remove
-                  </button> 
-                </td>
-              </tr>
-            </tbody>
-          </table>
+
+        <div class="col-md-3">
+          <h2 class="page-header">Players</h2>
+
+          <ul class="list-group">
+            <li class="list-group-item" ng-repeat="player in game.players">
+              {{ player.name }}
+              <button type="button" class="btn btn-danger btn-xs pull-right">
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+              </button> 
+            </li>
+          </ul>
         </div>
+
+        <div class="col-md-3">
+          <h2 class="page-header">Ball</h2>
+          <div>
+            <span class="ball">3</span>
+          </div>
+        </div>
+
       </div>
       
       <div class="row">
-        <div class="col-md-12">
-          <h2>Game</h2>
-            <p>Hi Player 1 ! This is your turn</p>
-            <button class="btn btn-primary" ng-click="CT.start()">Throw a Ball</button>
-          </form>
+        <div class="col-md-3">
+          <button class="btn btn-block btn-primary" ng-click="CT.start()">
+            <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Start Game
+          </button>
         </div>
+        <div class="col-md-3">
+          <button class="btn btn-block btn-danger" disabled="disabled" ng-click="CT.start()">
+            <span class="glyphicon glyphicon-stop" aria-hidden="true"></span> Finish Game
+          </button>
+        </div>
+        <div class="col-md-3">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Player Name" aria-label="...">
+            <div class="input-group-btn">
+              <button type="button" class="btn btn-primary">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <button class="btn btn-block btn-success" disabled="disabled" ng-click="CT.start()">
+            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Throw a Ball
+          </button>
+        </div>
+      </div>
+
+      <div class="row">
         <div class="col-md-12">
-          <h2>Scoreboard</h2>
+          <h2 class="page-header">Scoreboard</h2>
           <table class="table table-bordered centered">
             <thead class="thead-inverse">
               <tr>
@@ -99,7 +130,9 @@
             </thead>
             <tbody ng-repeat="player in game.players">
               <tr>
-                <th rowspan="2" scope="row">{{ player.name }}</th>
+                <th rowspan="2" scope="row">
+                  {{ player.name }}
+                </th>
                 <td ng-repeat="roll in player.rolls track by $index">.</th>
                 <th rowspan="2">0</th>
               </tr>
