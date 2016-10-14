@@ -3,13 +3,49 @@
     /*
      * The game frame
      */
-    class Frame {
-        constructor(position, isLast) {
+    class Roll {
+        constructor(frame, position, value) {
             this._position = position;
-            this._rolls = [ null, null ];
+            this._frame = frame;
+            this._value = value;
+        }
 
-            if (isLast) {
-                this._rolls.push(null);
+        get position() {
+            return this._position;
+        }
+
+        get frame() {
+            return this._frame;
+        }
+
+        get isFinished() {
+            return this._value != null;
+        }
+
+        get value() {
+            return this._value;
+        }
+
+        set value(value) {
+            return this._value = value;
+        }
+    }
+
+    /*
+     * The game frame
+     */
+    class Frame {
+        constructor(position) {
+            const frameCount = 10;
+
+            this._position = position;
+            this._rolls = [];
+
+            var rollCount = position < frameCount ? 2 : 3;
+
+            for (var i = 1; i <= rollCount; i++) {
+                var roll = new Roll(position, i, null);
+                this._rolls.push(roll);
             }
         }
 
@@ -17,38 +53,30 @@
             return this._position;
         }
 
-        set position(value) {
-            this._position = value;
-        }
-
         get rolls() {
             return this._rolls;
         }
 
-        get currentRoll() {
-            return this._rolls.findIndex(i => i == null);
+        get previousRoll() {
+            return this._rolls.reverse().find(i => i.isFinished);
         }
 
-        get currentValue() {
-            let index = this.currentRoll;
-            
-            if (index === undefined || index == null) {
-                return 0;
-            }
-
-            return this._rolls[index];
+        get currentRoll() {
+            return this._rolls.find(i => !i.isFinished);
         }
 
         get isFinished() {
-            return this.currentRoll < 0;
+            return this.currentRoll == null;
         }
 
         play (knocked) {
-            let rollIndex = this.currentRoll;
-
-            if (rollIndex > -1) {
-                this._rolls[rollIndex] = knocked;
+            let roll = this.currentRoll;
+            
+            if (roll === undefined || roll == null) {
+                return;
             }
+
+            roll.value = knocked;
         }
     }
 
@@ -63,18 +91,14 @@
             this._name = name;
             this._frames = [];
             
-            for (var i = 0; i < frameCount; i++) {
-                var frame = new Frame(i + 1, i == frameCount - 1);
+            for (var i = 1; i <= frameCount; i++) {
+                var frame = new Frame(i);
                 this._frames.push(frame);
             }
         }
 
         get position() {
             return this._position;
-        }
-
-        set position(value) {
-            this._position = value;
         }
 
         get name() {
@@ -98,22 +122,19 @@
         }
 
         get currentFrame() {
-            return this._frames.find(i => !i.isFinished);
+            return this._frames.find(f => !f.isFinished);
         }
 
         get currentRoll() {
-            if (this.isFinished) {
+            if (!this.currentFrame) {
                 return null;
             }
+
             return this.currentFrame.currentRoll;
         }
 
-        get currentValue() {
-            return this.currentFrame.currentValue;
-        }
-
         get isFinished() {
-            return !this.currentFrame;
+            return this.currentFrame == null;
         }
 
         get score() {
@@ -146,12 +167,36 @@
             return this._players.length > 0;
         }
 
+        get currentPlayer() {
+            if (!this.hasPlayers) {
+                return null;
+            }
+
+            return this._players[this._currentTurn];
+        }
+
         get currentFrame() {
+            if (!this.currentPlayer) {
+                return null;
+            }
+
             return this.currentPlayer.currentFrame;
         }
 
-        get currentPlayer() {
-            return this._players[this._currentTurn];
+        get currentRoll() {
+            if (!this.currentFrame) {
+                return null;
+            }
+
+            return this.currentFrame.currentRoll;
+        }
+
+        get previousValue() {
+            if (!this.currentFrame || !this.currentFrame.previousRoll) {
+                return 0;
+            }
+
+            return this.currentFrame.previousRoll.value
         }
 
         start() {
@@ -169,7 +214,7 @@
             this._currentTurn = 0;
         }
 
-        play(knocked) {
+        play (knocked) {
             if (this.isFinished) {
                 throw new Error('The game has finished!');   
             }
@@ -222,6 +267,11 @@
         }
 
         throwBall(knocked) {
+
+            if (knocked == config.pinCount) {
+                return 0;
+            }
+
             let max = config.pinCount - knocked;
             let result = Math.floor(Math.random() * max) + 1;
             return result;
@@ -280,9 +330,9 @@
 
         throwBall () {
             // try {
-                let value = this.$scope.currentGame.currentFrame.currentValue;
-                console.log(this.$scope.currentGame);
+                let value = this.$scope.currentGame.previousValue;
                 let knocked = this.bowlingService.throwBall(value);
+
                 this.$scope.currentGame.play(knocked);
             // }
             // catch(e) {
@@ -330,28 +380,6 @@
         }
     }
 
-    /*
-     * Filter for array position formatting
-     */
-    class ArrayPositionFilter {
-        constructor(input) {
-            this._index = input;
-        }
-
-        format() {
-            if (this._index === undefined || this._index == null || this._index < 0) {
-                return null;
-            }
-            
-            return this._index + 1;
-        }
-
-        static factory(input) {
-            let filter = new ArrayPositionFilter(input);
-            return filter.format();
-        }
-    }
-
     // Application constants
     var config = {
         frameCount: 10,
@@ -363,7 +391,6 @@
         .module('app', [])
         .constant('config', config)
         .filter('rollScore', () => RollScoreFilter.factory)
-        .filter('arrayPosition', () => ArrayPositionFilter.factory)
         .directive('ngEnter', () => new EnterDirective)
         .service('BowlingService', BowlingService)
         .controller('MainController', MainController);
