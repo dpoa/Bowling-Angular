@@ -29,6 +29,16 @@
             return this._rolls.findIndex(i => i == null);
         }
 
+        get currentValue() {
+            let index = this.currentRoll;
+            
+            if (index === undefined || index == null) {
+                return 0;
+            }
+
+            return this._rolls[index];
+        }
+
         get isFinished() {
             return this.currentRoll < 0;
         }
@@ -92,11 +102,14 @@
         }
 
         get currentRoll() {
-            console.log(this.isFinished);
             if (this.isFinished) {
                 return null;
             }
             return this.currentFrame.currentRoll;
+        }
+
+        get currentValue() {
+            return this.currentFrame.currentValue;
         }
 
         get isFinished() {
@@ -266,13 +279,15 @@
         }
 
         throwBall () {
-            try {
-                let knocked = this.bowlingService.throwBall(0);
+            // try {
+                let value = this.$scope.currentGame.currentFrame.currentValue;
+                console.log(this.$scope.currentGame);
+                let knocked = this.bowlingService.throwBall(value);
                 this.$scope.currentGame.play(knocked);
-            }
-            catch(e) {
-                alert(e.message);
-            }
+            // }
+            // catch(e) {
+            //     alert(e.message);
+            // }
         }
     }
 
@@ -294,19 +309,23 @@
     }
 
     /*
-     * Filter for game status formatting
+     * Filter for roll score formatting
      */
-    class GameStatusFilter {
+    class RollScoreFilter {
         constructor(input) {
-            this._isStarted = input;
+            this._value = input;
         }
 
         format() {
-            return this._isStarted ? 'In Progress' : 'Not Started';
+            if (this._value === undefined || this._value == null || this._value < 0) {
+                return "-";
+            }
+            
+            return this._value > 0 ? this._value : "-";
         }
 
         static factory(input) {
-            let filter = new GameStatusFilter(input);
+            let filter = new RollScoreFilter(input);
             return filter.format();
         }
     }
@@ -320,7 +339,7 @@
         }
 
         format() {
-            if (this._index === undefined) {
+            if (this._index === undefined || this._index == null || this._index < 0) {
                 return null;
             }
             
@@ -343,7 +362,7 @@
     angular
         .module('app', [])
         .constant('config', config)
-        .filter('gameStatus', () => GameStatusFilter.factory)
+        .filter('rollScore', () => RollScoreFilter.factory)
         .filter('arrayPosition', () => ArrayPositionFilter.factory)
         .directive('ngEnter', () => new EnterDirective)
         .service('BowlingService', BowlingService)

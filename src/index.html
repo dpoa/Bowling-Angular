@@ -40,8 +40,8 @@
           <h2 class="page-header">Scoreboard</h2>
 
           <div class="jumbotron" ng-hide="currentGame.hasPlayers">
-            <h2>No game :(</h2>
-            <p>There are no players in this game.</p>
+            <h3>No game :(</h3>
+            <span>There are no players in this game.</span>
           </div>
 
           <table class="table table-bordered centered" ng-show="currentGame.hasPlayers">
@@ -66,7 +66,7 @@
                 <th rowspan="2" scope="row">
                   {{ player.name }}
                 </th>
-                <td ng-repeat="roll in player.rolls track by $index">.</th>
+                <td ng-repeat="roll in player.rolls track by $index">{{ roll | rollScore }}</th>
                 <th rowspan="2">{{ player.score }}</th>
               </tr>
               
@@ -164,7 +164,7 @@
           </button>
         </div>
         <div class="col-md-3">
-          <button class="btn btn-block btn-success" ng-disabled="!currentGame.isStarted" ng-click="CT.throwBall()">
+          <button class="btn btn-block btn-success" ng-disabled="!currentGame.isStarted || currentGame.isFinished" ng-click="CT.throwBall()">
             <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Throw a Ball
           </button>
         </div>
