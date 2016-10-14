@@ -5,12 +5,14 @@
      */
     class Player {
         constructor(name, position) {
+            const frameCount = 10;
+
             this._position = position || 0;
             this._name = name;
             this._frames = [];
             
-            for (var i = 0; i < Game.FrameCount; i++) {
-                var frame = new Frame(i + 1);
+            for (var i = 0; i < frameCount; i++) {
+                var frame = new Frame(i + 1, i == frameCount - 1);
                 this._frames.push(frame);
             }
         }
@@ -48,11 +50,11 @@
      * The game frame
      */
     class Frame {
-        constructor(position) {
+        constructor(position, isLast) {
             this._position = position;
             this._rolls = [ null, null ];
 
-            if (position == Game.FrameCount) {
+            if (isLast) {
                 this._rolls.push(null);
             }
         }
@@ -68,6 +70,10 @@
         get rolls() {
             return this._rolls;
         }
+
+        get isFinished() {
+            return this._rolls.find(i => i == null).length == 0;
+        }
     }
 
     /*
@@ -77,10 +83,6 @@
         constructor() {
             this._players = [];
             this._isStarted = false;
-        }
-
-        static get FrameCount() {
-            return 10;
         }
 
         get isStarted() {
@@ -96,6 +98,10 @@
         }
 
         start() {
+            if (!this.hasPlayers) {
+                throw new Error('There are no players!');
+            }
+
             this._isStarted = true;
         }
 
@@ -136,12 +142,14 @@
      */
     class BowlingService {
 
-        constructor() {
-            this._rnd = null;
+        constructor(config) {
+            this._config = config;
         }
 
-        play() {
-            return 10;
+        throwBall(knocked) {
+            let max = config.pinCount - knocked;
+            let result = Math.floor(Math.random() * max) + 1;
+            return result;
         }
     }
 
@@ -159,11 +167,21 @@
         }
 
         start () {
-            this.$scope.game.start();
+            try {
+                this.$scope.game.start();
+            }
+            catch(e) {
+                alert(e.message);
+            }
         }
 
         finish () {
-            this.$scope.game.finish();
+            try {
+                this.$scope.game.finish();
+            }
+            catch(e) {
+                alert(e.message);
+            }
         }
 
         join () {
@@ -172,16 +190,26 @@
                 this.$scope.newPlayer = '';
             }
             catch(e) {
-                alert(e);
+                alert(e.message);
             }
         }
 
         leave (name) {
-            this.$scope.game.leave(name);
+            try {
+                this.$scope.game.leave(name);
+            }
+            catch(e) {
+                alert(e.message);
+            }
         }
 
         throw () {
-            alert('Throw');
+            try {
+                let result = this.bowlingService.throwBall(0);
+            }
+            catch(e) {
+                alert(e.message);
+            }
         }
     }
 
@@ -202,9 +230,16 @@
         }
     }
 
+    // Application constants
+    var config = {
+        frameCount: 10,
+        pinCount: 10
+    };
+
     // Application bootstrap
     angular
         .module('app', [])
+        .constant('config', config)
         .directive('ngEnter', () => new EnterDirective)
         .service('BowlingService', BowlingService)
         .controller('MainController', MainController);
