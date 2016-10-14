@@ -91,7 +91,7 @@
             <li class="list-group-item" ng-repeat="player in game.players">
               {{ player.name }}
               <span class="badge" ng-show="game.isStarted">0</span>
-              <button type="button" class="btn btn-danger btn-xs pull-right" ng-click="CT.leave(player.name)" ng-hide="game.isStarted">
+              <button type="button" class="btn btn-danger btn-xs pull-right" ng-click="CT.leaveGame(player.name)" ng-hide="game.isStarted">
                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
               </button> 
             </li>
@@ -105,13 +105,15 @@
             <li class="list-group-item">
               <div class="row">
                 <div class="col-md-2"><label>Status</label></div>
-                <div class="col-md-4">Not Started</div>
+                <div class="col-md-4">
+                  <span>{{ game.isStarted | gameStatus }}</span>
+                </div>
               </div>
             </li>
             <li class="list-group-item">
               <div class="row">
                 <div class="col-md-2"><label>Player</label></div>
-                <div class="col-md-4">John</div>
+                <div class="col-md-4">{{ game.currentPlayer }}</div>
               </div>
             </li>
             
@@ -141,26 +143,26 @@
       <div class="row">
         <div class="col-md-3">
           <div class="input-group">
-            <input type="text" class="form-control" placeholder="Player Name" aria-label="..." ng-disabled="game.isStarted" ng-model="newPlayer" ng-enter="CT.join()">
+            <input type="text" class="form-control" placeholder="Player Name" aria-label="..." ng-disabled="game.isStarted" ng-model="newPlayer" ng-enter="CT.joinGame()">
             <div class="input-group-btn">
-              <button type="button" class="btn btn-primary" ng-disabled="game.isStarted" ng-click="CT.join()">
+              <button type="button" class="btn btn-primary" ng-disabled="game.isStarted" ng-click="CT.joinGame()">
                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Join
               </button>
             </div>
           </div>
         </div>
         <div class="col-md-3">
-          <button class="btn btn-block btn-primary" ng-disabled="game.isStarted" ng-click="CT.start()">
+          <button class="btn btn-block btn-primary" ng-disabled="game.isStarted" ng-click="CT.startGame()">
             <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Start Game
           </button>
         </div>
         <div class="col-md-3">
-          <button class="btn btn-block btn-secondary" ng-disabled="!game.isStarted" ng-click="CT.finish()">
+          <button class="btn btn-block btn-secondary" ng-disabled="!game.isStarted" ng-click="CT.finishGame()">
             <span class="glyphicon glyphicon-stop" aria-hidden="true"></span> Finish Game
           </button>
         </div>
         <div class="col-md-3">
-          <button class="btn btn-block btn-success" ng-disabled="!game.isStarted" ng-click="CT.throw()">
+          <button class="btn btn-block btn-success" ng-disabled="!game.isStarted" ng-click="CT.throwBall()">
             <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Throw a Ball
           </button>
         </div>

@@ -83,6 +83,7 @@
         constructor() {
             this._players = [];
             this._isStarted = false;
+            this._currentFrame = 0;
         }
 
         get isStarted() {
@@ -95,6 +96,14 @@
 
         get hasPlayers() {
             return this._players.length > 0;
+        }
+
+        get currentFrame() {
+            return this._currentFrame;
+        }
+
+        get currentPlayer() {
+            return null;
         }
 
         start() {
@@ -166,7 +175,7 @@
             this.$scope = $scope;
         }
 
-        start () {
+        startGame () {
             try {
                 this.$scope.game.start();
             }
@@ -175,7 +184,7 @@
             }
         }
 
-        finish () {
+        finishGame () {
             try {
                 this.$scope.game.finish();
             }
@@ -184,7 +193,7 @@
             }
         }
 
-        join () {
+        joinGame () {
             try {
                 this.$scope.game.join(this.$scope.newPlayer);
                 this.$scope.newPlayer = '';
@@ -194,7 +203,7 @@
             }
         }
 
-        leave (name) {
+        leaveGame (name) {
             try {
                 this.$scope.game.leave(name);
             }
@@ -203,7 +212,7 @@
             }
         }
 
-        throw () {
+        throwBall () {
             try {
                 let result = this.bowlingService.throwBall(0);
             }
@@ -230,6 +239,42 @@
         }
     }
 
+    /*
+     * Filter for game status formatting
+     */
+    class GameStatusFilter {
+        constructor(input) {
+            this._isStarted = input;
+        }
+
+        format() {
+            return this._isStarted ? 'In Progress' : 'Not Started';
+        }
+
+        static factory(input) {
+            let filter = new GameStatusFilter(input);
+            return filter.format();
+        }
+    }
+
+    /*
+     * Filter for array position formatting
+     */
+    class ArrayPositionFilter {
+        constructor(input) {
+            this._index = input;
+        }
+
+        format() {
+            return this._index + 1;
+        }
+
+        static factory(input) {
+            let filter = new PositionFilter(input);
+            return filter.format();
+        }
+    }
+
     // Application constants
     var config = {
         frameCount: 10,
@@ -240,6 +285,8 @@
     angular
         .module('app', [])
         .constant('config', config)
+        .filter('gameStatus', () => GameStatusFilter.factory)
+        .filter('arrayPosition', () => ArrayPositionFilter.factory)
         .directive('ngEnter', () => new EnterDirective)
         .service('BowlingService', BowlingService)
         .controller('MainController', MainController);
