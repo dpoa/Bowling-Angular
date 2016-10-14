@@ -66,12 +66,12 @@
                 <th rowspan="2" scope="row">
                   {{ player.name }}
                 </th>
-                <td ng-repeat="roll in player.rolls track by $index">{{ roll.value | rollScore }}</th>
+                <td ng-repeat="roll in player.rolls track by $index">{{ roll | rollScore }}</th>
                 <th rowspan="2">{{ player.score }}</th>
               </tr>
               
               <tr class="table-active">
-                <th colspan="{{ frame.rolls.length }}" ng-repeat="frame in player.frames">-</th>
+                <th colspan="{{ frame.rolls.length }}" ng-repeat="frame in player.frames">{{ frame.score }}</th>
               </tr>
             </tbody>
           </table>

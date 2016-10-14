@@ -44,7 +44,7 @@
             var rollCount = position < frameCount ? 2 : 3;
 
             for (var i = 1; i <= rollCount; i++) {
-                var roll = new Roll(position, i, null);
+                var roll = new Roll(this, i, null);
                 this._rolls.push(roll);
             }
         }
@@ -58,7 +58,13 @@
         }
 
         get previousRoll() {
-            return this._rolls.reverse().find(i => i.isFinished);
+            var current = this.currentRoll;
+            
+            if (current != null && current.position > 1) {
+                return this._rolls[current.position - 2];
+            }
+
+            return null;
         }
 
         get currentRoll() {
@@ -67,6 +73,16 @@
 
         get isFinished() {
             return this.currentRoll == null;
+        }
+
+        get score() {
+            var sum = 0;
+
+            for (let roll of this._rolls) {
+                sum += roll.value || 0;
+            }
+
+            return sum;
         }
 
         play (knocked) {
@@ -138,7 +154,14 @@
         }
 
         get score() {
-            return 100;
+            var sum = 0;
+
+            for (let index in this._frames) {
+                var frame = this._frames[index];
+                sum += frame.score;
+            }
+            
+            return sum;
         }
     }
 
@@ -363,15 +386,28 @@
      */
     class RollScoreFilter {
         constructor(input) {
-            this._value = input;
+            this._roll = input;
         }
 
         format() {
-            if (this._value === undefined || this._value == null || this._value < 0) {
+            const pinCount = 10;
+
+            var roll = this._roll;
+            var value = roll.value;
+
+            if (value === undefined || value == null || value <= 0) {
                 return "-";
             }
+
+            if (roll.position == 1 && value == pinCount) {
+                return "X";
+            }
+
+            if (roll.position == 2 && roll.frame.score == pinCount) {
+                return "/";
+            }
             
-            return this._value > 0 ? this._value : "-";
+            return value;
         }
 
         static factory(input) {
