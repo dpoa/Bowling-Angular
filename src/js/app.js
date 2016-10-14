@@ -1,9 +1,23 @@
 
 (() => {
     class Player {
-        constructor(name) {
+        constructor(name, position) {
+            this._position = position || 0;
             this._name = name;
-            this._rolls = [];
+            this._frames = [];
+            
+            for (var i = 0; i < Game.FrameCount; i++) {
+                var frame = new Frame(i + 1);
+                this._frames.push(frame);
+            }
+        }
+
+        get position() {
+            return this._position;
+        }
+
+        set position(value) {
+            this._position = value;
         }
 
         get name() {
@@ -13,6 +27,41 @@
         set name(value) {
             this._name = value;
         }
+
+        get frames() {
+            return this._frames;
+        }
+
+        get rolls() {
+            var rolls = [];
+            for (let frame of this._frames) {
+                rolls = rolls.concat(frame.rolls);
+            }
+            return rolls;
+        }
+    }
+
+    class Frame {
+        constructor(position) {
+            this._position = position;
+            this._rolls = [ null, null ];
+
+            if (position == Game.FrameCount) {
+                this._rolls.push(null);
+            }
+        }
+
+        get position() {
+            return this._position;
+        }
+
+        set position(value) {
+            this._position = value;
+        }
+
+        get rolls() {
+            return this._rolls;
+        }
     }
 
     class Game {
@@ -20,8 +69,12 @@
             this.players = [];
         }
 
+        static get FrameCount() {
+            return 10;
+        }
+
         join (playerName) {
-            var player = new Player(playerName);
+            var player = new Player(playerName, this.players.length + 1);
             this.players.push(player);
         }
     }
