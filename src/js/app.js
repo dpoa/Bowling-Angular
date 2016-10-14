@@ -39,6 +39,8 @@
             const frameCount = 10;
 
             this._position = position;
+            this._sum = 0;
+            this._score = 0;
             this._rolls = [];
 
             var rollCount = position < frameCount ? 2 : 3;
@@ -47,6 +49,10 @@
                 var roll = new Roll(this, i, null);
                 this._rolls.push(roll);
             }
+        }
+
+        set bonus(value) {
+            this._bonus = value;
         }
 
         get position() {
@@ -75,24 +81,60 @@
             return this.currentRoll == null;
         }
 
+        get isStrike() {
+            return this._rolls[0].value == 10;
+        }
+
+        get isSpare() {
+            return this._rolls[0].value < 10 && this.hasBonus;
+        }
+
+        get hasBonus() {
+            return this.sum == 10;
+        }
+
+        get sum() {
+            return this._sum;
+        }
+
+        set sum(value) {
+            this._sum = value;
+        }
+
         get score() {
-            var sum = 0;
+            return this._score;
+        }
 
-            for (let roll of this._rolls) {
-                sum += roll.value || 0;
-            }
-
-            return sum;
+        set score(value) {
+            this._score = value;
         }
 
         play (knocked) {
-            let roll = this.currentRoll;
+            const pinCount = 10;
+
+            var roll = this.currentRoll;
+            var sum = 0;
             
             if (roll === undefined || roll == null) {
                 return;
             }
 
             roll.value = knocked;
+
+            // Strike
+            if (knocked == pinCount && roll.position == 1) {
+                for (let roll of this._rolls) {
+                    if (roll.value == null) {
+                        roll.value = 0;
+                    }
+                }
+            }
+
+            for (let roll of this._rolls) {
+                sum += roll.value || 0;
+            }
+
+            this.sum = sum;
         }
     }
 
@@ -106,6 +148,8 @@
             this._position = position || 0;
             this._name = name;
             this._frames = [];
+            this._isStarted = 0;
+            this._score = 0;
             
             for (var i = 1; i <= frameCount; i++) {
                 var frame = new Frame(i);
@@ -154,14 +198,50 @@
         }
 
         get score() {
-            var sum = 0;
+            return this._score;
+        }
 
-            for (let index in this._frames) {
-                var frame = this._frames[index];
-                sum += frame.score;
+        set score(value) {
+            this._score = value;
+        }
+
+        play (knocked) {
+            this.currentFrame.play(knocked);
+            this.calc();
+        }
+
+        calc() {
+            var sum = 0;
+            var frames = this._frames;
+
+            for (var i = 0; i < frames.length; i++) {
+                var bonus = 0;    
+                var frame = frames[i];
+                
+                if (frame.isFinished) {
+                    if (frame.hasBonus) {
+                        for (var j = i + 1; j < frames.length; j++) {
+                            var nextFrame = frames[j];
+                            var firstValue = nextFrame.rolls[0].value || 0;
+                            var secondValue = nextFrame.rolls[1].value || 0;
+
+                            bonus += firstValue;
+
+                            if (frame.isStrike && !nextFrame.isStrike) {
+                                break;
+                            }
+                        }
+
+                        sum += bonus;
+                    }
+
+                    sum += frame.sum;
+
+                    frame.score = sum;
+                }
             }
-            
-            return sum;
+
+            this.score = sum;
         }
     }
 
@@ -242,7 +322,7 @@
                 throw new Error('The game has finished!');   
             }
 
-            this.currentFrame.play(knocked);
+            this.currentPlayer.play(knocked);
             
             if (this._currentTurn < this._players.length - 1) {
                 this._currentTurn++;
@@ -309,6 +389,7 @@
         constructor($scope, BowlingService) {
             $scope.currentGame = new Game();
             $scope.newPlayer = '';
+            $scope.knocked = 0;
 
             this.bowlingService = BowlingService;
             this.$scope = $scope;
@@ -352,15 +433,16 @@
         }
 
         throwBall () {
-            // try {
-                let value = this.$scope.currentGame.previousValue;
-                let knocked = this.bowlingService.throwBall(value);
+            try {
+                let previous = this.$scope.currentGame.previousValue;
+                let value = this.bowlingService.throwBall(previous);
 
-                this.$scope.currentGame.play(knocked);
-            // }
-            // catch(e) {
-            //     alert(e.message);
-            // }
+                this.$scope.knocked = value;
+                this.$scope.currentGame.play(value);
+            }
+            catch(e) {
+                alert(e.message);
+            }
         }
     }
 
@@ -399,11 +481,11 @@
                 return "-";
             }
 
-            if (roll.position == 1 && value == pinCount) {
+            if (roll.frame.isStrike) {
                 return "X";
             }
 
-            if (roll.position == 2 && roll.frame.score == pinCount) {
+            if (roll.position == 2 && roll.frame.isSpare) {
                 return "/";
             }
             
