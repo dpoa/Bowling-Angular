@@ -66,16 +66,33 @@
 
     class Game {
         constructor() {
-            this.players = [];
+            this._players = [];
+            this._isStarted = false;
         }
 
         static get FrameCount() {
             return 10;
         }
 
+        get isStarted() {
+            return this._isStarted;
+        }
+
+        get players() {
+            return this._players;
+        }
+
+        start() {
+            this._isStarted = true;
+        }
+
+        finish() {
+            this._isStarted = false;
+        }
+
         join (playerName) {
-            var player = new Player(playerName, this.players.length + 1);
-            this.players.push(player);
+            var player = new Player(playerName, this._players.length + 1);
+            this._players.push(player);
         }
     }
 
@@ -102,16 +119,20 @@
             this.$scope.game = game;
         }
 
+        start () {
+            this.$scope.game.start();
+        }
+
+        finish () {
+            this.$scope.game.finish();
+        }
+
         add () {
             alert('Add');
         }
 
-        clear () {
-            alert('Add');
-        }
-
-        start () {
-            alert('Start');
+        throw () {
+            alert('Throw');
         }
     }
 

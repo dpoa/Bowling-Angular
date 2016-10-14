@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html ng-app="app">
+<html ng-app="app" ng-model-options="{ getterSetter: true }">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -73,8 +73,8 @@
 
         <div class="col-md-3">
           <h2 class="page-header">Ball</h2>
-          <div>
-            <span class="ball">3</span>
+          <div class="ball">
+            <span>3</span>
           </div>
         </div>
 
@@ -82,27 +82,27 @@
       
       <div class="row">
         <div class="col-md-3">
-          <button class="btn btn-block btn-primary" ng-click="CT.start()">
+          <button class="btn btn-block btn-primary" ng-disabled="game.isStarted" ng-click="CT.start()">
             <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Start Game
           </button>
         </div>
         <div class="col-md-3">
-          <button class="btn btn-block btn-danger" disabled="disabled" ng-click="CT.start()">
+          <button class="btn btn-block btn-danger" ng-disabled="!game.isStarted" ng-click="CT.finish()">
             <span class="glyphicon glyphicon-stop" aria-hidden="true"></span> Finish Game
           </button>
         </div>
         <div class="col-md-3">
           <div class="input-group">
-            <input type="text" class="form-control" placeholder="Player Name" aria-label="...">
+            <input type="text" class="form-control" placeholder="Player Name" aria-label="..." ng-disabled="!game.isStarted">
             <div class="input-group-btn">
-              <button type="button" class="btn btn-primary">
+              <button type="button" class="btn btn-primary" ng-disabled="!game.isStarted" ng-click="CT.add()">
                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add
               </button>
             </div>
           </div>
         </div>
         <div class="col-md-3">
-          <button class="btn btn-block btn-success" disabled="disabled" ng-click="CT.start()">
+          <button class="btn btn-block btn-success" ng-disabled="!game.isStarted" ng-click="CT.throw()">
             <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Throw a Ball
           </button>
         </div>
