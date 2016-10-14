@@ -1,5 +1,8 @@
 
 (() => {
+    /*
+     * The player
+     */
     class Player {
         constructor(name, position) {
             this._position = position || 0;
@@ -41,6 +44,9 @@
         }
     }
 
+    /*
+     * The game frame
+     */
     class Frame {
         constructor(position) {
             this._position = position;
@@ -64,6 +70,9 @@
         }
     }
 
+    /*
+     * Handle all information about the game
+     */
     class Game {
         constructor() {
             this._players = [];
@@ -82,6 +91,10 @@
             return this._players;
         }
 
+        get hasPlayers() {
+            return this._players.length > 0;
+        }
+
         start() {
             this._isStarted = true;
         }
@@ -91,11 +104,36 @@
         }
 
         join (playerName) {
-            var player = new Player(playerName, this._players.length + 1);
-            this._players.push(player);
+            var index = this._players.findIndex(i => i.name == playerName);
+
+            if (playerName === undefined || playerName === '' || playerName.trim() === '') {
+                throw new Error('Name cannot be empty!');
+            }
+
+            if (index < 0) {
+                var player = new Player(playerName, this._players.length + 1);
+                this._players.push(player);
+            }
+            else {
+                throw new Error('Player already added!');
+            }
+        }
+
+        leave (playerName) {
+            var index = this._players.findIndex(i => i.name == playerName);
+
+            if (index < 0) {
+                throw new Error('Player not found!');
+            }
+            else {
+                this._players.splice(index, 1);
+            }
         }
     }
 
+    /*
+     * Service responsible for throwing the balls
+     */
     class BowlingService {
 
         constructor() {
@@ -107,16 +145,17 @@
         }
     }
 
+    /*
+     * The home page controller
+     */
     class MainController {
 
         constructor($scope, BowlingService) {
-            var game = new Game();
-            game.join('John');
-            game.join('Mary');
-            
+            $scope.game = new Game();
+            $scope.newPlayer = '';
+
             this.bowlingService = BowlingService;
             this.$scope = $scope;
-            this.$scope.game = game;
         }
 
         start () {
@@ -127,8 +166,18 @@
             this.$scope.game.finish();
         }
 
-        add () {
-            alert('Add');
+        join () {
+            try {
+                this.$scope.game.join(this.$scope.newPlayer);
+                this.$scope.newPlayer = '';
+            }
+            catch(e) {
+                alert(e);
+            }
+        }
+
+        leave (name) {
+            this.$scope.game.leave(name);
         }
 
         throw () {
@@ -136,8 +185,27 @@
         }
     }
 
+    /*
+     * Directive for detecting enter key
+     */
+    class EnterDirective {
+        constructor() {
+        }
+
+        link (scope, element, attrs) {
+            element.bind("keydown keypress", event => {
+                if(event.which === 13) {
+                    scope.$apply(() => scope.$eval(attrs.ngEnter));
+                    event.preventDefault();
+                }
+            });
+        }
+    }
+
+    // Application bootstrap
     angular
         .module('app', [])
+        .directive('ngEnter', () => new EnterDirective)
         .service('BowlingService', BowlingService)
         .controller('MainController', MainController);
  })();

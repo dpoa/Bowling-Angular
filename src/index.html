@@ -26,11 +26,33 @@
       <div class="container">
         <h1 class="display-3">Bowling Game</h1>
         <p>This is a classic Bowling game implemented in Angular 1.x and ECMAScript6.</p>
+        <ul>
+          <li>To start a game, add one or more players and click the "Start Game" button.</li>
+          <li>To play a game, click the "Throw a Ball" button for each player.</li>
+        </ul>
       </div>
     </div>
 
     <div class="container">
       <div class="row">
+
+        <div class="col-md-3">
+          <h2 class="page-header">Players</h2>
+
+          <div class="alert alert-warning" role="alert" ng-hide="game.hasPlayers">
+            Add players to start a game.
+          </div>
+
+          <ul class="list-group" ng-show="game.hasPlayers">
+            <li class="list-group-item" ng-repeat="player in game.players">
+              {{ player.name }}
+              <span class="badge" ng-show="game.isStarted">0</span>
+              <button type="button" class="btn btn-danger btn-xs pull-right" ng-click="CT.leave(player.name)" ng-hide="game.isStarted">
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+              </button> 
+            </li>
+          </ul>
+        </div>
 
         <div class="col-md-6">
           <h2 class="page-header">Game</h2>
@@ -59,22 +81,12 @@
         </div>
 
         <div class="col-md-3">
-          <h2 class="page-header">Players</h2>
-
-          <ul class="list-group">
-            <li class="list-group-item" ng-repeat="player in game.players">
-              {{ player.name }}
-              <button type="button" class="btn btn-danger btn-xs pull-right">
-                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-              </button> 
-            </li>
-          </ul>
-        </div>
-
-        <div class="col-md-3">
           <h2 class="page-header">Ball</h2>
-          <div class="ball">
-            <span>3</span>
+          <div class="alert alert-warning" role="alert" ng-hide="game.isStarted">
+            Start a game to throw a ball.
+          </div>
+          <div class="ball" ng-show="game.isStarted">
+            <span>?</span>
           </div>
         </div>
 
@@ -82,24 +94,24 @@
       
       <div class="row">
         <div class="col-md-3">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Player Name" aria-label="..." ng-disabled="game.isStarted" ng-model="newPlayer" ng-enter="CT.join()">
+            <div class="input-group-btn">
+              <button type="button" class="btn btn-primary" ng-disabled="game.isStarted" ng-click="CT.join()">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Join
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
           <button class="btn btn-block btn-primary" ng-disabled="game.isStarted" ng-click="CT.start()">
             <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Start Game
           </button>
         </div>
         <div class="col-md-3">
-          <button class="btn btn-block btn-danger" ng-disabled="!game.isStarted" ng-click="CT.finish()">
+          <button class="btn btn-block btn-secondary" ng-disabled="!game.isStarted" ng-click="CT.finish()">
             <span class="glyphicon glyphicon-stop" aria-hidden="true"></span> Finish Game
           </button>
-        </div>
-        <div class="col-md-3">
-          <div class="input-group">
-            <input type="text" class="form-control" placeholder="Player Name" aria-label="..." ng-disabled="!game.isStarted">
-            <div class="input-group-btn">
-              <button type="button" class="btn btn-primary" ng-disabled="!game.isStarted" ng-click="CT.add()">
-                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add
-              </button>
-            </div>
-          </div>
         </div>
         <div class="col-md-3">
           <button class="btn btn-block btn-success" ng-disabled="!game.isStarted" ng-click="CT.throw()">
@@ -111,7 +123,13 @@
       <div class="row">
         <div class="col-md-12">
           <h2 class="page-header">Scoreboard</h2>
-          <table class="table table-bordered centered">
+
+          <div class="jumbotron" ng-hide="game.hasPlayers">
+            <h2>No game :(</h2>
+            <p>There are no players in this game.</p>
+          </div>
+
+          <table class="table table-bordered centered" ng-show="game.hasPlayers">
             <thead class="thead-inverse">
               <tr>
                 <th rowspan="2">Player</th>
