@@ -40,6 +40,7 @@
 
             this._position = position;
             this._sum = 0;
+            this._bonus = 0;
             this._score = 0;
             this._rolls = [];
 
@@ -49,10 +50,6 @@
                 var roll = new Roll(this, i, null);
                 this._rolls.push(roll);
             }
-        }
-
-        set bonus(value) {
-            this._bonus = value;
         }
 
         get position() {
@@ -86,10 +83,10 @@
         }
 
         get isSpare() {
-            return this._rolls[0].value < 10 && this.hasBonus;
+            return this._rolls[0].value < 10 && this.isMaxScore;
         }
 
-        get hasBonus() {
+        get isMaxScore() {
             return this.sum == 10;
         }
 
@@ -99,6 +96,14 @@
 
         set sum(value) {
             this._sum = value;
+        }
+
+        get bonus() {
+            return this._bonus;
+        }
+
+        set bonus(value) {
+            this._bonus = value;
         }
 
         get score() {
@@ -219,23 +224,31 @@
                 var frame = frames[i];
                 
                 if (frame.isFinished) {
-                    if (frame.hasBonus) {
-                        for (var j = i + 1; j < frames.length; j++) {
-                            var nextFrame = frames[j];
-                            var firstValue = nextFrame.rolls[0].value || 0;
-                            var secondValue = nextFrame.rolls[1].value || 0;
+                    
+                    if (frame.isMaxScore) {
+                        var firstFrame = frames.find(i => i.position == frame.position + 1);
+                        var secondFrame = frames.find(i => i.position == frame.position + 2);
+                        
+                        var firstValue = 0;
+                        var secondValue = 0;
 
-                            bonus += firstValue;
-
-                            if (frame.isStrike && !nextFrame.isStrike) {
-                                break;
+                        if (firstFrame != null) {
+                            firstValue = firstFrame.rolls[0].value || 0;
+                        
+                            if (frame.isStrike) {
+                                if (!firstFrame.isStrike) {
+                                    secondValue = firstFrame.rolls[1].value || 0;
+                                }
+                                else if (secondFrame != null) {
+                                    secondValue = secondFrame.rolls[0].value || 0;
+                                }
                             }
                         }
 
-                        sum += bonus;
+                        frame.bonus = firstValue + secondValue;
                     }
 
-                    sum += frame.sum;
+                    sum += frame.sum + frame.bonus;
 
                     frame.score = sum;
                 }
