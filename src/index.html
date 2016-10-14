@@ -39,12 +39,12 @@
         <div class="col-md-12">
           <h2 class="page-header">Scoreboard</h2>
 
-          <div class="jumbotron" ng-hide="game.hasPlayers">
+          <div class="jumbotron" ng-hide="currentGame.hasPlayers">
             <h2>No game :(</h2>
             <p>There are no players in this game.</p>
           </div>
 
-          <table class="table table-bordered centered" ng-show="game.hasPlayers">
+          <table class="table table-bordered centered" ng-show="currentGame.hasPlayers">
             <thead class="thead-inverse">
               <tr>
                 <th rowspan="2">Player</th>
@@ -61,13 +61,13 @@
                 <th>Score</th>
               </tr>
             </thead>
-            <tbody ng-repeat="player in game.players">
+            <tbody ng-repeat="player in currentGame.players">
               <tr>
                 <th rowspan="2" scope="row">
                   {{ player.name }}
                 </th>
                 <td ng-repeat="roll in player.rolls track by $index">.</th>
-                <th rowspan="2">0</th>
+                <th rowspan="2">{{ player.score }}</th>
               </tr>
               
               <tr class="table-active">
@@ -83,15 +83,15 @@
         <div class="col-md-3">
           <h2 class="page-header">Players</h2>
 
-          <div class="alert alert-warning" role="alert" ng-hide="game.hasPlayers">
+          <div class="alert alert-warning" role="alert" ng-hide="currentGame.hasPlayers">
             Add players to start a game.
           </div>
 
-          <ul class="list-group" ng-show="game.hasPlayers">
-            <li class="list-group-item" ng-repeat="player in game.players">
+          <ul class="list-group" ng-show="currentGame.hasPlayers">
+            <li class="list-group-item" ng-repeat="player in currentGame.players">
               {{ player.name }}
-              <span class="badge" ng-show="game.isStarted">0</span>
-              <button type="button" class="btn btn-danger btn-xs pull-right" ng-click="CT.leaveGame(player.name)" ng-hide="game.isStarted">
+              <span class="badge" ng-show="currentGame.isStarted">{{ player.score }}</span>
+              <button type="button" class="btn btn-danger btn-xs pull-right" ng-click="CT.leaveGame(player.name)" ng-hide="currentGame.isStarted">
                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
               </button> 
             </li>
@@ -106,23 +106,25 @@
               <div class="row">
                 <div class="col-md-2"><label>Status</label></div>
                 <div class="col-md-4">
-                  <span>{{ game.isStarted | gameStatus }}</span>
+                  <span class="label label-default" ng-show="!currentGame.isStarted">Not Started</span>
+                  <span class="label label-primary" ng-show="currentGame.isStarted && !currentGame.isFinished">In Progress</span>
+                  <span class="label label-danger" ng-show="currentGame.isStarted && currentGame.isFinished">Finished</span>
                 </div>
               </div>
             </li>
             <li class="list-group-item">
               <div class="row">
                 <div class="col-md-2"><label>Player</label></div>
-                <div class="col-md-4">{{ game.currentPlayer }}</div>
+                <div class="col-md-4">{{ currentGame.currentPlayer.name }}</div>
               </div>
             </li>
             
             <li class="list-group-item">
               <div class="row">
                 <div class="col-md-2"><label>Frame</label></div>
-                <div class="col-md-4">1</div>
+                <div class="col-md-4">{{ currentGame.currentPlayer.currentFrame.position }}</div>
                 <div class="col-md-2"><label>Roll</label></div>
-                <div class="col-md-4">1</div>
+                <div class="col-md-4">{{ currentGame.currentPlayer.currentRoll | arrayPosition }}</div>
               </div>
             </li>
           </ul>
@@ -130,10 +132,10 @@
 
         <div class="col-md-3">
           <h2 class="page-header">Ball</h2>
-          <div class="alert alert-warning" role="alert" ng-hide="game.isStarted">
+          <div class="alert alert-warning" role="alert" ng-hide="currentGame.isStarted">
             Start a game to throw a ball.
           </div>
-          <div class="ball" ng-show="game.isStarted">
+          <div class="ball" ng-show="currentGame.isStarted">
             <span>?</span>
           </div>
         </div>
@@ -143,26 +145,26 @@
       <div class="row">
         <div class="col-md-3">
           <div class="input-group">
-            <input type="text" class="form-control" placeholder="Player Name" aria-label="..." ng-disabled="game.isStarted" ng-model="newPlayer" ng-enter="CT.joinGame()">
+            <input type="text" class="form-control" placeholder="Player Name" aria-label="..." ng-disabled="currentGame.isStarted" ng-model="newPlayer" ng-enter="CT.joinGame()">
             <div class="input-group-btn">
-              <button type="button" class="btn btn-primary" ng-disabled="game.isStarted" ng-click="CT.joinGame()">
+              <button type="button" class="btn btn-primary" ng-disabled="currentGame.isStarted" ng-click="CT.joinGame()">
                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Join
               </button>
             </div>
           </div>
         </div>
         <div class="col-md-3">
-          <button class="btn btn-block btn-primary" ng-disabled="game.isStarted" ng-click="CT.startGame()">
+          <button class="btn btn-block btn-primary" ng-disabled="currentGame.isStarted" ng-click="CT.startGame()">
             <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Start Game
           </button>
         </div>
         <div class="col-md-3">
-          <button class="btn btn-block btn-secondary" ng-disabled="!game.isStarted" ng-click="CT.finishGame()">
+          <button class="btn btn-block btn-secondary" ng-disabled="!currentGame.isStarted" ng-click="CT.finishGame()">
             <span class="glyphicon glyphicon-stop" aria-hidden="true"></span> Finish Game
           </button>
         </div>
         <div class="col-md-3">
-          <button class="btn btn-block btn-success" ng-disabled="!game.isStarted" ng-click="CT.throwBall()">
+          <button class="btn btn-block btn-success" ng-disabled="!currentGame.isStarted" ng-click="CT.throwBall()">
             <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Throw a Ball
           </button>
         </div>

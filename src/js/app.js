@@ -1,6 +1,48 @@
 
 (() => {
     /*
+     * The game frame
+     */
+    class Frame {
+        constructor(position, isLast) {
+            this._position = position;
+            this._rolls = [ null, null ];
+
+            if (isLast) {
+                this._rolls.push(null);
+            }
+        }
+
+        get position() {
+            return this._position;
+        }
+
+        set position(value) {
+            this._position = value;
+        }
+
+        get rolls() {
+            return this._rolls;
+        }
+
+        get currentRoll() {
+            return this._rolls.findIndex(i => i == null);
+        }
+
+        get isFinished() {
+            return this.currentRoll < 0;
+        }
+
+        play (knocked) {
+            let rollIndex = this.currentRoll;
+
+            if (rollIndex > -1) {
+                this._rolls[rollIndex] = knocked;
+            }
+        }
+    }
+
+    /*
      * The player
      */
     class Player {
@@ -44,35 +86,25 @@
             }
             return rolls;
         }
-    }
 
-    /*
-     * The game frame
-     */
-    class Frame {
-        constructor(position, isLast) {
-            this._position = position;
-            this._rolls = [ null, null ];
+        get currentFrame() {
+            return this._frames.find(i => !i.isFinished);
+        }
 
-            if (isLast) {
-                this._rolls.push(null);
+        get currentRoll() {
+            console.log(this.isFinished);
+            if (this.isFinished) {
+                return null;
             }
-        }
-
-        get position() {
-            return this._position;
-        }
-
-        set position(value) {
-            this._position = value;
-        }
-
-        get rolls() {
-            return this._rolls;
+            return this.currentFrame.currentRoll;
         }
 
         get isFinished() {
-            return this._rolls.find(i => i == null).length == 0;
+            return !this.currentFrame;
+        }
+
+        get score() {
+            return 100;
         }
     }
 
@@ -81,13 +113,16 @@
      */
     class Game {
         constructor() {
-            this._players = [];
-            this._isStarted = false;
-            this._currentFrame = 0;
+            this.reset();
         }
 
         get isStarted() {
             return this._isStarted;
+        }
+
+        get isFinished() {
+            let pending = this._players.find(i => !i.isFinished);
+            return pending == null;
         }
 
         get players() {
@@ -99,11 +134,11 @@
         }
 
         get currentFrame() {
-            return this._currentFrame;
+            return this.currentPlayer.currentFrame;
         }
 
         get currentPlayer() {
-            return null;
+            return this._players[this._currentTurn];
         }
 
         start() {
@@ -114,8 +149,26 @@
             this._isStarted = true;
         }
 
-        finish() {
+        reset() {
             this._isStarted = false;
+            this._players = [];
+            this._isStarted = false;
+            this._currentTurn = 0;
+        }
+
+        play(knocked) {
+            if (this.isFinished) {
+                throw new Error('The game has finished!');   
+            }
+
+            this.currentFrame.play(knocked);
+            
+            if (this._currentTurn < this._players.length - 1) {
+                this._currentTurn++;
+            }
+            else {
+                this._currentTurn = 0;
+            }
         }
 
         join (playerName) {
@@ -168,7 +221,7 @@
     class MainController {
 
         constructor($scope, BowlingService) {
-            $scope.game = new Game();
+            $scope.currentGame = new Game();
             $scope.newPlayer = '';
 
             this.bowlingService = BowlingService;
@@ -177,7 +230,7 @@
 
         startGame () {
             try {
-                this.$scope.game.start();
+                this.$scope.currentGame.start();
             }
             catch(e) {
                 alert(e.message);
@@ -186,7 +239,7 @@
 
         finishGame () {
             try {
-                this.$scope.game.finish();
+                this.$scope.currentGame.reset();
             }
             catch(e) {
                 alert(e.message);
@@ -195,7 +248,7 @@
 
         joinGame () {
             try {
-                this.$scope.game.join(this.$scope.newPlayer);
+                this.$scope.currentGame.join(this.$scope.newPlayer);
                 this.$scope.newPlayer = '';
             }
             catch(e) {
@@ -205,7 +258,7 @@
 
         leaveGame (name) {
             try {
-                this.$scope.game.leave(name);
+                this.$scope.currentGame.leave(name);
             }
             catch(e) {
                 alert(e.message);
@@ -214,7 +267,8 @@
 
         throwBall () {
             try {
-                let result = this.bowlingService.throwBall(0);
+                let knocked = this.bowlingService.throwBall(0);
+                this.$scope.currentGame.play(knocked);
             }
             catch(e) {
                 alert(e.message);
@@ -266,11 +320,15 @@
         }
 
         format() {
+            if (this._index === undefined) {
+                return null;
+            }
+            
             return this._index + 1;
         }
 
         static factory(input) {
-            let filter = new PositionFilter(input);
+            let filter = new ArrayPositionFilter(input);
             return filter.format();
         }
     }
