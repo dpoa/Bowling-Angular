@@ -90,6 +90,10 @@
             return this.sum == 10;
         }
 
+        get isLast() {
+            return this.position == 10;
+        }
+
         get sum() {
             return this._sum;
         }
@@ -119,6 +123,7 @@
 
             var roll = this.currentRoll;
             var sum = 0;
+            var isStrike = knocked == pinCount;
             
             if (roll === undefined || roll == null) {
                 return;
@@ -126,20 +131,32 @@
 
             roll.value = knocked;
 
-            // Strike
-            if (knocked == pinCount && roll.position == 1) {
-                for (let roll of this._rolls) {
-                    if (roll.value == null) {
-                        roll.value = 0;
-                    }
-                }
-            }
-
-            for (let roll of this._rolls) {
-                sum += roll.value || 0;
+            // sum
+            for (let other of this._rolls) {
+                sum += other.value || 0;
             }
 
             this.sum = sum;
+
+            // Last frame
+            if (this.isLast && roll.position == 2) {
+                if (sum % 10 != 0) {
+                    this.finish();
+                }
+            }
+            // Strike
+            if (isStrike && roll.position == 1) {
+                this.finish();
+            }
+            
+        }
+
+        finish() {
+            for (let roll of this._rolls) {
+                if (roll.value == null) {
+                    roll.value = 0;
+                }
+            }
         }
     }
 
